@@ -1,40 +1,105 @@
+import Image from "next/image";
 import Link from "next/link";
+import { newsArticles } from "../data/site-content";
 
-const updates = [
-  {
-    eyebrow: "Guía práctica",
-    title: "Cómo apoyar las reivindicaciones desde casa",
-    description:
-      "El registro telemático permite enviar una solicitud individual a la administración. Hemos reunido instrucciones sencillas y los textos que podéis copiar en cada apartado.",
-    href: "/instrucciones",
-    action: "Consultar los pasos",
-  },
-  {
-    eyebrow: "Educación pública",
-    title: "Una educación con tiempo y recursos para cada estudiante",
-    description:
-      "Ratios adecuadas, equipos educativos suficientes y apoyos a la diversidad son condiciones necesarias para atender al alumnado.",
-    href: "/#reivindicaciones",
-    action: "Ver qué defendemos",
-  },
-];
+function NewsArticle({ article }) {
+  const { dateTime, dateLabel, badges, title, description, actions, poster } =
+    article;
 
-function UpdateCard({ eyebrow, title, description, href, action }) {
   return (
     <article className="rounded-2xl border border-[#e2e3dc] bg-white p-5 shadow-[0_3px_12px_rgb(23_50_41_/_4%)] sm:p-6">
-      <p className="mb-2 text-xs font-bold tracking-[0.08em] text-[#6b6952] uppercase">
-        {eyebrow}
+      <p className="mb-3 flex flex-wrap items-center gap-2 text-sm text-[#59665f]">
+        <time dateTime={dateTime}>{dateLabel}</time>
+        {badges.map((badge) => (
+          <span
+            className="rounded-full bg-[#e7f0eb] px-2.5 py-1 text-xs font-bold text-[#28675b]"
+            key={badge}
+          >
+            {badge}
+          </span>
+        ))}
       </p>
+
       <h3 className="m-0 font-serif text-[23px] leading-tight font-bold text-[#202d28]">
         {title}
       </h3>
-      <p className="mt-3 mb-4 leading-relaxed text-[#48564f]">{description}</p>
-      <Link
-        className="font-bold text-[#176252] underline decoration-[#c4d5ca] decoration-2 underline-offset-4 hover:text-[#0b3c34] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4b837]"
-        href={href}
+      <p className="mt-3 mb-5 leading-relaxed text-[#48564f]">{description}</p>
+
+      <div
+        className={`grid gap-6 ${
+          poster
+            ? "lg:grid-cols-[minmax(0,1.35fr)_minmax(180px,0.65fr)]"
+            : ""
+        }`}
       >
-        {action} →
-      </Link>
+        {actions.length > 0 && (
+          <ol className="m-0 list-none space-y-4 p-0">
+            {actions.map((action) => (
+              <li
+                className="flex gap-3 border-l-2 border-[#c4d5ca] pl-3"
+                key={`${action.time}-${action.title}`}
+              >
+                <span className="w-14 shrink-0 pt-0.5 text-sm font-bold text-[#176252]">
+                  {action.time}
+                </span>
+                <div>
+                  <h4 className="m-0 text-sm leading-snug font-bold text-[#284b41]">
+                    {action.title}
+                  </h4>
+                  <p className="mt-1 mb-0 text-sm leading-relaxed text-[#59665f]">
+                    {action.location}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+
+        {poster && (
+          <figure className="m-0">
+            {poster.src ? (
+              <a
+                className="relative block aspect-[1024/1448] overflow-hidden rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4b837]"
+                href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${poster.src}`}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`${poster.alt} Abrir imagen en tamaño completo`}
+              >
+                <Image
+                  className="object-contain"
+                  src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${poster.src}`}
+                  alt={poster.alt}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 35vw"
+                  unoptimized
+                />
+              </a>
+            ) : (
+              <div
+                aria-label="Espacio reservado para el cartel"
+                className="flex aspect-[1024/1448] items-center justify-center rounded-xl border border-dashed border-[#b8c8bc] bg-[#f2f7f3] p-5 text-center text-sm text-[#59665f]"
+              >
+                Añade el cartel a la carpeta public y escribe su ruta en
+                poster.src.
+              </div>
+            )}
+            <figcaption className="mt-2 text-center text-xs leading-relaxed text-[#66716b]">
+              {poster.caption}
+            </figcaption>
+          </figure>
+        )}
+      </div>
+
+      <p className="mt-5 mb-0 border-t border-[#e8ebe5] pt-4 text-sm leading-relaxed text-[#48564f]">
+        ¿Tienes dudas sobre los recorridos o cómo participar?{" "}
+        <Link
+          className="font-bold text-[#176252] underline decoration-[#c4d5ca] decoration-2 underline-offset-4 hover:text-[#0b3c34] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4b837]"
+          href="#contacto"
+        >
+          Escríbenos
+        </Link>
+        .
+      </p>
     </article>
   );
 }
@@ -54,8 +119,8 @@ export default function NewsSection() {
         </p>
       </div>
       <div className="grid gap-4">
-        {updates.map((update) => (
-          <UpdateCard key={update.title} {...update} />
+        {newsArticles.map((article) => (
+          <NewsArticle key={article.title} article={article} />
         ))}
       </div>
     </section>
